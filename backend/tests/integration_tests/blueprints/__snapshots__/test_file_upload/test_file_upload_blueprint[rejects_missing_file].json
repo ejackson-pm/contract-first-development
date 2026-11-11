@@ -1,0 +1,6 @@
+{
+  "body": {
+    "error": "The 'file' field is required"
+  },
+  "status_code": 400
+}

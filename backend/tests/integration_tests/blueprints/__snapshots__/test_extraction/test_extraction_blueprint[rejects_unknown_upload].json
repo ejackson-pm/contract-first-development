@@ -1,0 +1,6 @@
+{
+  "body": {
+    "error": "No upload exists with upload_id missing-upload"
+  },
+  "status_code": 404
+}

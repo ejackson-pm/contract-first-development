@@ -1,0 +1,6 @@
+{
+  "body": {
+    "error": "The file must be a PDF"
+  },
+  "status_code": 400
+}

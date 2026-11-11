@@ -1,0 +1,117 @@
+openapi: 3.0.3
+info:
+  title: Document Extraction API
+  version: 1.0.0
+  description: >-
+    Upload a PDF, then submit it to the document data extraction system.
+    This file is the contract: the backend's Pydantic models are generated from it.
+paths:
+  /api/document-extraction/v1/health:
+    get:
+      operationId: getHealth
+      tags: [Health]
+      summary: Liveness check
+      responses:
+        '200':
+          description: The API is running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/document-extraction/v1/file-upload:
+    post:
+      operationId: uploadFile
+      tags: [Uploads]
+      summary: Upload one PDF
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The PDF to upload
+      responses:
+        '201':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+        '400':
+          description: The file is missing or is not a PDF
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/document-extraction/v1/create-extraction:
+    post:
+      operationId: createExtraction
+      tags: [Extractions]
+      summary: Submit an uploaded file for data extraction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExtractionRequest'
+      responses:
+        '201':
+          description: Extraction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateExtractionResponse'
+        '400':
+          description: The request body is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No upload exists with the given upload_id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          description: Always "ok" while the API is running
+    FileUploadResponse:
+      type: object
+      required: [upload_id]
+      properties:
+        upload_id:
+          type: string
+          description: Identifier of the uploaded file. Pass it to create-extraction.
+    CreateExtractionRequest:
+      type: object
+      required: [upload_id]
+      properties:
+        upload_id:
+          type: string
+          description: Identifier returned by file-upload
+    CreateExtractionResponse:
+      type: object
+      required: [extraction_id]
+      properties:
+        extraction_id:
+          type: string
+          description: Identifier of the created extraction. Store it on the client.
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Human-readable description of the error
